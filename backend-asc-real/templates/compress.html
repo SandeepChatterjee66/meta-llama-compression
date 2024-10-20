@@ -1,0 +1,390 @@
+<!-- index.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Compression</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    <style>
+        /* Facebook-like styles */
+        body {
+            background-color: #f0f2f5; /* Facebook light gray background */
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+        }
+
+        /* Facebook top navigation bar */
+        .navbar {
+            background-color: #1877f2; /* Facebook blue */
+            padding: 10px 0;
+            text-align: center;
+        }
+
+        .container {
+            margin-top: 20px; /* Reduced margin to fit with Meta logo */
+            text-align: center;
+            background-color: #fff;
+            padding: 30px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            width: 400px;
+            margin: 20px auto; /* Centering the content */
+        }
+
+        /* Meta logo placement below the navbar */
+        .meta-logo-container {
+            margin-top: 0px; /* Pulls the logo up closer to the navbar */
+        }
+
+        .meta-logo-container img {
+            height: 40px;
+            margin-bottom: 20px; /* Space between logo and content */
+        }
+
+        h5 {
+            color: #1877f2; /* Facebook blue for the title */
+            font-weight: 600;
+        }
+
+        /* Progress bar style */
+        .progress {
+            background-color: #e9ebee; /* Light gray progress background */
+            border-radius: 25px;
+            overflow: hidden;
+        }
+
+        .determinate {
+            background-color: #42b72a; /* Facebook-like green progress color */
+        }
+
+        /* Footer link (optional for Facebook styling) */
+        .footer-link {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #65676b;
+        }
+
+        /* Download page styles */
+        .download-container {
+            display: none;
+            margin-top: 20px;
+            text-align: center;
+            background-color: #fff;
+            padding: 30px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            width: 400px;
+            margin: 20px auto;
+        }
+
+        .download-button {
+            background-color: #1877f2;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .download-button:hover {
+            background-color: #1565c0;
+        }
+
+        svg {
+          width:50%;
+          height:50%;
+          top: 0;
+          left: 30%;
+        /*   filter: url(#goo); */
+        }
+
+        .neuron {
+          fill: #3fa9f5;
+        }
+
+        .input {
+          fill: #3fd7f5;
+        }
+
+        .output {
+          fill: #3f7cf5;
+        }
+
+        .axon {
+          fill:none;
+          stroke: #3fa9f5;
+          stroke-width: 12;
+        }
+
+        .dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.try-button {
+    background-color: #1877f2; /* Facebook blue */
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.try-button:hover {
+    background-color: #1667d2; /* Darker Facebook blue */
+}
+
+.progress-bar {
+    position: fixed;
+    bottom: 0;
+    width: 0%;
+    height: 5px;
+    background-color: #1877f2; /* Facebook blue */
+    transition: width 3s ease-in-out;
+    z-index: 1000; /* Ensure progress bar is on top */
+}
+
+/* Add this to ensure progress bar is visible below the button */
+.download-container {
+    margin-bottom: 10px; /* Add space for progress bar */
+}
+
+#download-progress {
+    display: none;
+}
+
+
+#compression-estimate {
+    text-align: center;
+    margin-top: 20px;
+}
+
+
+
+    </style>
+
+    <!-- GSAP TweenMax library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.3/TweenMax.min.js"></script>
+
+    <!-- GSDevTools library -->
+    <script src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/16327/GSDevTools.min.js"></script>
+</head>
+<body>
+    <!-- Facebook-like top navbar -->
+    <div class="navbar"></div>
+
+    <!-- Meta logo placed below navbar -->
+    <div class="meta-logo-container center-align">
+        <img src="{{ url_for('static', filename='images/meta_logo.png') }}" alt="Meta Logo">
+    </div>
+
+    <!-- Main content container -->
+    <div class="container">
+        <h5>Compressing the Model</h5>
+
+        <!-- Progress bar -->
+        <div class="progress">
+            <div class="determinate" id="compression-progress-bar" style="width: 0%"></div>
+        </div>
+        
+        <!-- Compression status -->
+        <div class="compression-status">
+            <p>Compression progress: <span id="compression-percentage">0%</span></p>
+            </div>
+    </div>
+
+    <p id="compression-estimate">We will notify you via email once done.</p>
+        
+
+    <!-- Download container -->
+    <!-- Download container -->
+    <div class="download-container" id="download-container">
+        <h5>Model Compression Complete!</h5>
+        <p>Your model is ready for download.</p>
+        <button class="download-button" id="download-button">Benjamin!</button>
+        <div class="progress" id="download-progress">
+            <div class="determinate" id="download-progress-bar" style="width: 0%"></div>
+        </div>
+    </div>
+
+    <!-- Generator: Adobe Illustrator 22.1.0, SVG Export Plug-In  -->
+    <svg class="neuronSVG" version="1.1"
+    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600">
+
+<defs>
+<filter color-interpolation-filters="sRGB" id="goo">
+ <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="blur" />
+ <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 21 -9" result="cm" />
+ <feBlend/>
+ </filter>     
+</defs>
+
+<!-- <g id="context">
+<rect x="0.5" y="0.5" class="st0" width="599" height="599"/>
+<path d="M599,1v598H1V1H599 M600,0H0v600h600V0L600,0z"/>
+</g> -->
+
+<g id="neuronGroup" filter="url(#goo)">
+<g>
+<circle class="neuron" cx="300" cy="300" r="47"/>
+</g>
+<g>
+<circle class="input" cx="162" cy="196" r="28"/>
+</g>
+<g>
+<circle class="input" cx="162" cy="300" r="28"/>
+</g>
+<g>
+<circle class="output" cx="434" cy="300" r="28"/>
+</g>
+<g>
+<circle class="input" cx="162" cy="404" r="28"/>
+</g>
+<g>
+<line class="axon" x1="162" y1="196" x2="300" y2="300"/>
+<line class="axon" x1="162" y1="300" x2="300" y2="300"/>
+<line class="axon" x1="162" y1="404" x2="300" y2="300"/>
+<line class="axon" x1="434" y1="300" x2="300" y2="300"/>
+</g>
+
+</g>
+</svg>
+
+<!-- Optional footer link -->
+<div class="footer-link center-align">
+    <a href="/">Go back to homepage</a>
+</div>
+
+<!-- JavaScript to simulate progress -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+<script>
+
+// Simulate random progress for model compression
+let compressionProgress = 0;
+let compressionBar = document.getElementById("compression-progress-bar");
+let compressionText = document.getElementById("compression-percentage");
+let downloadContainer = document.getElementById("download-container");
+let progressBar = document.createElement('div');
+progressBar.className = 'progress-bar';
+progressBar.style.position = 'fixed';
+progressBar.style.bottom = '0';
+progressBar.style.width = '0%';
+progressBar.style.height = '5px';
+progressBar.style.background = '#1877f2';  // Facebook blue
+progressBar.style.transition = 'width 3s ease-in-out';
+document.body.appendChild(progressBar);
+
+let compressionInterval = setInterval(function() {
+    if (compressionProgress >= 100) {
+        clearInterval(compressionInterval);
+        downloadContainer.style.display = "block";  // Show download container
+        document.getElementById("compression-estimate").style.display = "none";  // Hide estimate message
+        
+        // Add event listener to download button
+        document.getElementById("download-button").addEventListener("click", function() {
+            progressBar.style.width = '100%';  // Start progress bar animation
+            
+            // Simulate download delay
+            setTimeout(function() {
+                // Hide progress bar
+                progressBar.style.width = '0%';
+                progressBar.style.transition = 'none';
+                
+                // Show dialog box
+                var dialog = document.createElement('div');
+                dialog.className = 'dialog';
+                dialog.innerHTML = '<h2>Download Complete!</h2><p>Your model has been downloaded successfully.</p>';
+                
+                var tryButton = document.createElement('button');
+                tryButton.className = 'try-button';
+                tryButton.textContent = 'Try Your Model';
+                tryButton.onclick = function() {
+                    window.location.href = '/chat';  // Transition to chat page
+                };
+                
+                dialog.appendChild(tryButton);
+                document.body.appendChild(dialog);
+            }, 3000);  // 3-second delay
+        });
+        
+    } else {
+        compressionProgress += Math.floor(Math.random() * 10) + 1;
+        if (compressionProgress > 100) compressionProgress = 100;
+        compressionBar.style.width = compressionProgress + "%";
+        compressionText.textContent = compressionProgress + "%";
+        
+        if (compressionProgress == 1) {
+            document.getElementById("compression-estimate").style.display = "block";  // Show estimate message
+            let timeRemaining = 30;  // Initial time remaining
+            let estimateInterval = setInterval(function() {
+                timeRemaining -= 1;
+                document.getElementById("compression-estimate").textContent = `Approx time: ${timeRemaining}s. We will notify you via email once done.`;
+                if (timeRemaining <= 0 || compressionProgress >= 100) {
+                    clearInterval(estimateInterval);
+                }
+            }, 1000);  // 1-second interval
+        }
+    }
+}, 1000);
+
+document.getElementById("download-button").addEventListener("click", function() {
+    let downloadProgressBar = document.getElementById("download-progress-bar");
+    downloadProgressBar.style.width = '0%';  // Reset progress bar
+    document.getElementById("download-progress").style.display = 'block';  // Show progress bar
+    
+    let downloadProgress = 0;
+
+    // Simulate download delay
+    let downloadInterval = setInterval(function() {
+        if (downloadProgress >= 100) {
+            clearInterval(downloadInterval);
+            document.getElementById("download-progress").style.display = 'none';  // Hide progress bar
+            
+            // Show dialog box
+            var dialog = document.createElement('div');
+            dialog.className = 'dialog';
+            dialog.innerHTML = '<h2>Tada!</h2><p>Your model has been downloaded successfully.</p>';
+
+            var tryButton = document.createElement('button');
+            tryButton.className = 'try-button';
+            tryButton.textContent = 'Try Your Model';
+            tryButton.onclick = function() {
+                window.location.href = '/impact';  // Transition to chat page
+            };
+
+            dialog.appendChild(tryButton);
+            document.body.appendChild(dialog);
+        } else {
+            downloadProgress += Math.floor(Math.random() * 10) + 1;
+            if (downloadProgress > 100) downloadProgress = 100;
+            downloadProgressBar.style.width = downloadProgress + "%";
+        }
+    }, 30);  // 30ms interval for smoother progress
+});
+
+var tl = new TimelineMax({repeat: -1});
+
+TweenMax.set([".neuron", ".input", ".output", ".axon"], {
+ transformOrigin:'50% 50%'
+})
+
+tl.from(".neuron", 1, {scale: 0, ease: Elastic.easeOut})
+  .from(".input", 2, {scale: 0})
+  .from(".axon", 1, {scale: 0}, "-=1")
+  .from(".output", 1, {scale: 0, ease: Elastic.easeOut});
+
+// GSDevTools.create();
+
+
+</script>
+</body>
+</html>

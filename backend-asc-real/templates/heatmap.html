@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+
+ 
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heatmap Threshold Selection</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        body {
+            background-color: #f0f2f5; /* Facebook-like light grey background */
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .container {
+            margin-top: 50px;
+            text-align: center;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h5 {
+            color: #1877f2; /* Facebook blue for headings */
+        }
+
+        .heatmap-container {
+            padding: 10px;
+            overflow: hidden; /* Add this */
+        }
+
+        .heatmap {
+            font-size: 8px; /* Reduce font size */
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .heatmap-cell {
+            width: 0.5%; /* Reduce cell width */
+            height: 5px; /* Reduce cell height */
+            border: 1px solid #e0e0e0;
+            transition: background-color 0.3s;
+            border-radius: 2px; /* Reduce border radius */
+        }
+
+        .transparent {
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .range-field {
+            margin-top: 20px;
+        }
+
+        .btn {
+            background-color: #42a5f5;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: #2f64b5;
+        }
+
+        /* Meta logo styling */
+        .meta-logo {
+            width: 150px;
+            margin-bottom: 20px;
+        }
+
+        /* Custom slider styles */
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 10px;
+            border-radius: 5px;
+            background: #e0e0e0;
+            outline: none;
+            opacity: 0.7;
+            -webkit-transition: .2s;
+            transition: opacity .2s;
+        }
+
+        .slider:hover {
+            opacity: 1;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #42a5f5;
+            cursor: pointer;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #42a5f5;
+            cursor: pointer;
+        }
+
+        /* Custom styles for stylish UI */
+        body {
+            background-color: #f7f8fa; /* Light gray background */
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .container {
+            margin-top: 50px;
+            text-align: center;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 10px;
+        }
+
+        h5 {
+            color: #1a73e8; /* Meta blue for headings */
+            font-weight: 600;
+        }
+
+        .heatmap-container {
+            width: 100%;
+            padding: 20px;
+            background-color: #f7f8fa; /* Light gray background */
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 10px;
+        }
+
+        .heatmap-container{
+            scale: 50%;
+            translate: 0 -20%;
+        }
+
+        .heatmap {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .heatmap-cell {
+            width: 2%; /* Smaller cell width */
+            height: 15px; /* Reduced height for smaller appearance */
+            border: 1px solid #e0e0e0;
+            transition: background-color 0.3s;
+            border-radius: 5px;
+        }
+
+        .transparent {
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .range-field {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f7f8fa; /* Light gray background */
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 10px;
+        }
+
+        .btn {
+            background-color: #1a73e8; /* Meta blue */
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: #1559c9; /* Darker Meta blue */
+        }
+
+        /* Meta logo styling */
+        .meta-logo {
+            width: 150px;
+            margin-bottom: 20px;
+        }
+
+        /* Custom slider styles */
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 10px;
+            border-radius: 5px;
+            background: #e0e0e0;
+            outline: none;
+            opacity: 0.7;
+            -webkit-transition: .2s;
+            transition: opacity .2s;
+        }
+
+        .slider:hover {
+            opacity: 1;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #1a73e8; /* Meta blue */
+            cursor: pointer;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #1a73e8; /* Meta blue */
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container center-align">
+        <!-- Meta logo at the top -->
+        <img src="{{ url_for('static', filename='images/meta_logo.png') }}" alt="Meta Logo" class="meta-logo">
+
+        <h5>Layer Similarity Heatmap</h5>
+
+        <!-- Slider and button -->
+        <div class="row">
+            <p class="range-field">
+                <label for="threshold-slider">Select Threshold (0-100%)</label>
+                <input type="range" id="threshold-slider" class="slider" min="0" max="100" value="50" />
+                <span id="threshold-value">50%</span>
+            </p>
+        </div>
+
+        <!-- Confirm button -->
+        <div class="center-align">
+            <a class="waves-effect waves-light btn" id="confirm-button">Confirm</a>
+        </div>
+
+        <!-- Simulated heatmap grid -->
+        <div class="heatmap-container">
+            <table class="heatmap">
+                <!-- Generating a smaller 10x10 grid -->
+                {% for row in heatmap_values %}
+                    <tr>
+                        {% for value in row %}
+                            <td class="heatmap-cell" data-value="{{ value }}" style="background-color: rgba(0, 0, 255, {{ value / 100 }});">
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmation-modal" class="modal">
+        <div class="modal-content">
+            <h4>Confirmation</h4>
+            <p>You have selected a threshold. Proceed?</p>
+        </div>
+        <div class="modal-footer">
+            <a href="#!" id="confirm-yes" class="modal-close waves-effect waves-green btn">Yes</a>
+            <a href="#!" id="confirm-no" class="modal-close waves-effect waves-red btn">No</a>
+        </div>
+    </div>
+
+    <!-- Import Materialize JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+    <script>
+        // Initialize modal
+        document.addEventListener('DOMContentLoaded', function() {
+            var elems = document.querySelectorAll('.modal');
+            var instances = M.Modal.init(elems);
+        });
+
+        // Function to update the heatmap cells' transparency based on threshold
+        function updateHeatmapTransparency(threshold) {
+            const cells = document.querySelectorAll('.heatmap-cell');
+            cells.forEach(cell => {
+                const value = parseInt(cell.getAttribute('data-value'));
+                if (value < threshold) {
+                    cell.classList.add('transparent');
+                } else {
+                    cell.classList.remove('transparent');
+                }
+            });
+        }
+
+        // Handle threshold slider input and update heatmap dynamically
+        document.getElementById('threshold-slider').addEventListener('input', function() {
+            const threshold = this.value;
+            document.getElementById('threshold-value').innerText = threshold + '%';
+            updateHeatmapTransparency(threshold);
+        });
+
+        // Confirm button action
+        document.getElementById('confirm-button').addEventListener('click', function() {
+            const instance = M.Modal.getInstance(document.getElementById('confirmation-modal'));
+            instance.open();
+
+            document.getElementById('confirm-yes').onclick = function() {
+                localStorage.setItem('threshold', document.getElementById('threshold-slider').value);
+                window.location.href = '/intermediate';  // Navigate to intermediate page
+            };
+        });
+    </script>
+</body>
+</html>
+
+
+

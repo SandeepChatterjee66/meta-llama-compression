@@ -1,0 +1,143 @@
+<!-- impact.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Compression Impact</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            background-color: #f0f2f5; /* Facebook-like light grey background */
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .container {
+            margin-top: 50px;
+            text-align: center;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 10px;
+        }
+
+        h5 {
+            color: #1877f2; /* Facebook blue for headings */
+            font-weight: 600;
+        }
+
+        .impact-table {
+            width: 100%;
+            border-collapse: collapse;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 10px;
+        }
+
+        .impact-table th, .impact-table td {
+            border: 1px solid #e0e0e0;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .impact-table th {
+            background-color: #f2f2f2;
+            color: #1877f2; /* Facebook blue for headings */
+        }
+
+        .text-green {
+            color: #2ecc71;
+        }
+
+        .text-grey {
+            color: #808080;
+        }
+
+        .text-blue {
+            color: #3498db;
+        }
+
+        .text-red {
+            color: #e74c3c;
+        }
+
+        .text-black {
+            color: #000000;
+        }
+
+        .text-indigo {
+            color: #6c5ce7;
+        }
+
+        .try-button {
+            background-color: #1877f2; /* Facebook blue */
+            color: #ffffff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .try-button:hover {
+            background-color: #1667d2; /* Darker Facebook blue */
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar" style="background-color: #1877f2; padding: 10px 0; text-align: center;"></div>
+
+    <div class="container center-align">
+        <h5>Model Compression Impact</h5>
+
+        <!-- Impact table -->
+        <table class="impact-table">
+            <thead>
+                <tr>
+                    <th>Statistic</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><i class="fas fa-tree"></i> Power Usage Saving</td>
+                    <td class="text-green">23.4%</td>
+                </tr>
+                <tr>
+                    <td><i class="fas fa-atom"></i> Carbon Emission Reduction</td>
+                    <td class="text-grey">17.6 tons</td>
+                </tr>
+                <tr>
+                    <td><i class="fas fa-bolt"></i> Avg Latency</td>
+                    <td class="text-blue">241.2 ms</td>
+                </tr>
+                <tr>
+                    <td><i class="fas fa-hdd"></i> Memory Usage</td>
+                    <td class="text-red">12.8 GB</td>
+                </tr>
+                <tr>
+                    <td><i class="fas fa-computer"></i> Number of Params</td>
+                    <td class="text-black"> 789 M </td>
+                </tr>
+                <tr>
+                    <td><i class="fas fa-check"></i> Avg Validation Score</td>
+                    <td class="text-indigo">92.1%</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Try Now button -->
+        <button class="try-button" id="try-button">Try Now</button>
+    </div>
+
+    <script>
+        document.getElementById("try-button").addEventListener("click", function() {
+            window.location.href = '/chat';  // Transition to chat page
+        });
+    </script>
+</body>
+</html>

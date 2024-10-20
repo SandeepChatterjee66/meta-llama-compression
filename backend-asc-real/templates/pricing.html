@@ -1,0 +1,146 @@
+<!-- pricing.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing and Cost Estimation</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
+    <style>
+        body {
+            background-color: #f0f2f5; /* Facebook-like light grey background */
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .container {
+            margin-top: 50px;
+            text-align: center;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 10px;
+        }
+
+        h5 {
+            color: #1877f2; /* Facebook blue for headings */
+        }
+
+        .pricing-table {
+            margin: 20px auto;
+            width: 100%;
+            display: table;
+        }
+
+        .pricing-row {
+            display: table-row;
+        }
+
+        .pricing-cell {
+            display: table-cell;
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .pricing-cell:first-child {
+            font-weight: bold;
+            width: 200px;
+        }
+
+        .pricing-cell:last-child {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1877f2; /* Facebook blue for pricing */
+        }
+
+        .total-cost {
+            font-size: 48px;
+            font-weight: bold;
+            color: #1877f2; /* Facebook blue for total cost */
+            animation: animateTotalCost 2s ease-in-out;
+        }
+
+        @keyframes animateTotalCost {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .proceed-button {
+            background-color: #42a5f5;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            animation: animateButton 2s ease-in-out infinite;
+        }
+
+        @keyframes animateButton {
+            0% {
+                background-color: #42a5f5;
+            }
+            50% {
+                background-color: #2f64b5;
+            }
+            100% {
+                background-color: #42a5f5;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container center-align">
+        <!-- Meta logo at the top -->
+        <img src="{{ url_for('static', filename='images/meta_logo.png') }}" alt="Meta Logo" class="meta-logo">
+
+        <h5>Pricing and Cost Estimation</h5>
+
+        <!-- Pricing table -->
+        <div class="pricing-table">
+            <div class="pricing-row">
+                <div class="pricing-cell">Compute Power Required</div>
+                <div class="pricing-cell">{{ compute_power }} mins</div>
+            </div>
+            <div class="pricing-row">
+                <div class="pricing-cell">Dataset Size (Approximate Tokens)</div>
+                <div class="pricing-cell">{{ "{:,.0f}".format(dataset_size) }} tokens</div>
+            </div>
+            <div class="pricing-row">
+                <div class="pricing-cell">Compressed Model Size</div>
+                <div class="pricing-cell">{{ "{:,.0f}".format(compressed_model_size) }} parameters</div>
+            </div>
+            <div class="pricing-row">
+                <div class="pricing-cell">Finetuning Cost</div>
+                <div class="pricing-cell">₹ {{ "{:,.2f}".format(finetuning_cost) }}</div>
+            </div>
+            <div class="pricing-row">
+                <div class="pricing-cell">Total Cost</div>
+                <div class="pricing-cell total-cost">₹ {{ "{:,.2f}".format(total_cost) }}</div>
+            </div>
+        </div>
+
+        <!-- Proceed button -->
+        <div class="center-align">
+            <button class="proceed-button" id="proceed-button">Proceed</button>
+        </div>
+    </div>
+
+    <script>
+        // Handle proceed button click
+        document.getElementById('proceed-button').addEventListener('click', function() {
+            window.location.href = '/compress';  // Navigate to compress page
+        });
+    </script>
+</body>
+</html>

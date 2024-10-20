@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Llama Model</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        body {
+            background: #e9eff1; /* Light background color similar to Facebook */
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Helvetica Neue', Arial, sans-serif; /* Default font */
+        }
+
+        .container {
+            background: white; /* White background for the container */
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); /* Soft shadow for elevation */
+            padding: 20px;
+            width: 90%;
+            max-width: 600px; /* Set a max-width for better layout */
+        }
+
+        h4 {
+            color: #1877f2; /* Facebook blue color */
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .carousel-item img {
+            width: 180px;
+            height: 180px;
+            object-fit: contain;
+            border-radius: 15px;
+            transition: transform 0.3s ease-in-out, z-index 0.3s;
+        }
+
+        .carousel-item.active img {
+            transform: scale(1.1);
+            border: 3px solid #42a5f5;
+            z-index: 10;
+        }
+
+        .model-title {
+            text-align: center;
+            font-size: 16px;
+            margin-top: 5px;
+            color: #424242;
+        }
+
+        #selected-model-label {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1877f2;
+            text-align: center;
+        }
+
+        #selected-params {
+            font-size: 16px;
+            color: #757575;
+            text-align: center;
+        }
+
+        .file-field {
+            margin-top: 30px;
+            text-align: center; /* Center the file upload button */
+        }
+
+        .btn-custom {
+            background-color: #42a5f5;
+            color: white;
+            border-radius: 30px;
+            padding: 10px 30px;
+            transition: background-color 0.3s;
+        }
+
+        .btn-custom:hover {
+            background-color: #3694e0; /* Darker blue on hover */
+        }
+
+        .carousel {
+            height: 220px; /* Slightly increased height for the carousel */
+        }
+
+        .submit-button-container {
+            display: flex;
+            justify-content: center; /* Center the button horizontally */
+            margin-top: 20px; /* Optional: Add space above the button */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="{{ url_for('static', filename='images/meta_logo.png') }}" alt="Meta Logo" class="responsive-img" style="width: 150px; margin: auto; display: block;">
+        <h4>Select a Llama Model</h4>
+        <div class="carousel">
+            <a class="carousel-item" href="#!" data-model="Llama 3.2" data-params="1B to 3B">
+                <img src="{{ url_for('static', filename='images/llama.png') }}" alt="Llama 3.2">
+                <div class="model-title">Llama 3.2</div>
+            </a>
+            <a class="carousel-item" href="#!" data-model="Llama 3.2 Vision" data-params="11B to 90B">
+                <img src="{{ url_for('static', filename='images/llama_vision.png') }}" alt="Llama 3.2 Vision">
+                <div class="model-title">Llama 3.2 Vision</div>
+            </a>
+            <a class="carousel-item" href="#!" data-model="Llama 3.1" data-params="8B to 405B">
+                <img src="{{ url_for('static', filename='images/llama.png') }}" alt="Llama 3.1">
+                <div class="model-title">Llama 3.1</div>
+            </a>
+            <a class="carousel-item" href="#!" data-model="Llama Guard 3" data-params="8B">
+                <img src="{{ url_for('static', filename='images/llama_guard.png') }}" alt="Llama Guard 3">
+                <div class="model-title">Llama Guard 3</div>
+            </a>
+            <a class="carousel-item" href="#!" data-model="Prompt Guard" data-params="86M">
+                <img src="{{ url_for('static', filename='images/prompt_guard.png') }}" alt="Prompt Guard">
+                <div class="model-title">Prompt Guard</div>
+            </a>
+            <a class="carousel-item" href="#!" data-model="Code Llama" data-params="7B to 70B">
+                <img src="{{ url_for('static', filename='images/code_llama.png') }}" alt="Code Llama">
+                <div class="model-title">Code Llama</div>
+            </a>
+        </div>
+
+        <div class="row">
+            <h5 id="selected-model-label">Selected Model: None</h5>
+            <h6 id="selected-params"></h6>
+        </div>
+
+        <form action="" method="post" enctype="multipart/form-data">
+            <div class="file-field input-field">
+                <div class="btn btn-custom">
+                    <span>Upload CSV</span>
+                    <input type="file" name="file" accept=".csv">
+                </div>
+                <div class="file-path-wrapper">
+                    <input class="file-path validate" type="text" placeholder="Upload your dataset CSV">
+                </div>
+            </div>
+        
+            <!-- Hidden input field to store the selected model -->
+            <input type="hidden" id="selected-model" name="selected_model" value="">
+        
+            <!-- Submit button -->
+            <div class="submit-button-container">
+                <button class="waves-effect btn-custom" type="submit" id="submit-button">Submit</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script>
+        // Initialize the carousel
+        document.addEventListener('DOMContentLoaded', function() {
+            const elems = document.querySelectorAll('.carousel');
+            const instances = M.Carousel.init(elems, { fullWidth: false });
+
+            // Handle model selection
+            const carouselItems = document.querySelectorAll('.carousel-item');
+            let selectedModel = null;
+            let selectedParams = null;
+
+            carouselItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    selectedModel = this.getAttribute('data-model');
+                    selectedParams = this.getAttribute('data-params');
+
+                    document.getElementById('selected-model-label').textContent = `Selected Model: ${selectedModel}`;
+                    document.getElementById('selected-params').textContent = `Parameters: ${selectedParams}`;
+                    
+                    // Set the value of the hidden input field
+                    document.getElementById('selected-model').value = selectedModel;
+
+                    carouselItems.forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Handle submit
+            document.getElementById('submit-button').addEventListener('click', function(event) {
+                event.preventDefault();
+                if (selectedModel === null) {
+                    alert("Please select a model before submitting!");
+                } else {
+                    // Submit the form
+                    document.querySelector('form').submit();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

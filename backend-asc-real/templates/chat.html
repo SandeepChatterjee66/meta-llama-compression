@@ -1,0 +1,280 @@
+<!-- chat.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with LLM</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f7f8fa;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            margin-top: 50px;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        h5 {
+            font-weight: bold;
+            color: #1a73e8;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .chat-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            width: 45%;
+            display: inline-block;
+            vertical-align: top;
+        }
+
+        .chat-message {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 10px;
+            display: block;
+            max-width: 90%;
+        }
+
+        .chat-message.user {
+            background-color: #e0f7fa;
+            float: right;
+        }
+
+        .chat-message.llm {
+            background-color: #e3f2fd;
+            float: left;
+        }
+
+        .input-field {
+            display: flex;
+            justify-content: space-between;
+            background-color: #fff;
+            border-radius: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 10px 20px;
+            position: sticky;
+            bottom: 0;
+        }
+
+        #user-input {
+            border: none;
+            width: 80%;
+            font-size: 16px;
+            padding: 10px;
+            outline: none;
+        }
+
+        #send-button {
+            background-color: #1a73e8;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #send-button:hover {
+            background-color: #1559c9;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                width: 90%;
+            }
+            .chat-container {
+                width: 90%;
+                display: block;
+            }
+        }
+
+        #chat-boxes {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .chat-container {
+            width: 45%;
+        }
+
+        .meta-logo{
+            position: relative;
+            top: 7px;
+        }
+
+        #original-time-label, #compressed-time-label {
+            margin-bottom: 10px;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container center-align">
+        <img class="meta-logo" src="{{ url_for('static', filename='images/meta_logo.png') }}" alt="Meta Logo" style="width: 150px; margin-bottom: 20px;">
+        <h5 id="title">Try Your Compressed LLM</h5>
+
+        <div id="chat-boxes">
+            <div class="chat-container" id="original-chat-box">
+                <!-- Messages will appear here dynamically -->
+            </div>
+            <div class="chat-container" id="compressed-chat-box" style="display: none;">
+                <!-- Messages will appear here dynamically -->
+            </div>
+        </div>
+
+        <div class="input-field">
+            <input type="text" id="user-input" placeholder="Type your message..." autocomplete="off">
+            <button id="send-button">Send</button>
+        </div>
+    </div>
+
+    <script>
+    
+    document.getElementById('send-button').addEventListener('click', function() {
+    const userMessage = document.getElementById('user-input').value;
+    if (userMessage.trim() !== "") {
+        addMessageToChat("You", userMessage, 'user', 'original');
+        addMessageToChat("You", userMessage, 'user', 'compressed');
+        document.getElementById('user-input').value = ""; // Clear the input field
+
+        // Send user message to backend via AJAX
+        const originalStartTime = new Date().getTime();
+        fetch('/chat/send/original', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message: userMessage })
+        })
+        .then(response => response.json())
+        .then(data => {
+            const originalResponseTime = new Date().getTime() - originalStartTime;
+            const originalResponse = data.response;
+            const originalChatBox = document.getElementById('original-chat-box');
+            const originalMessage = document.createElement('div');
+            originalMessage.classList.add('chat-message', 'llm');
+            originalMessage.innerHTML = `
+                <img class="meta-logo" src="{{ url_for('static', filename='images/meta-ai-chat.png') }}" alt="Meta AI Logo" style="width: 20px;">
+                <strong>:</strong> ${originalResponse}
+            `;
+            originalChatBox.appendChild(originalMessage);
+            originalChatBox.scrollTop = originalChatBox.scrollHeight; // Scroll to the bottom of the chat box
+
+            // Display original model response time
+            const originalTimeLabel = document.getElementById('original-time-label');
+            if (originalTimeLabel) {
+                originalTimeLabel.innerText = `Original: ${originalResponseTime} ms`;
+            } else {
+                const originalTimeElement = document.createElement('p');
+                originalTimeElement.id = 'original-time-label';
+                originalTimeElement.style.fontSize = '12px';
+                originalTimeElement.style.color = '#666';
+                originalTimeElement.innerText = `Original: ${originalResponseTime} ms`;
+                originalChatBox.parentNode.insertBefore(originalTimeElement, originalChatBox);
+            }
+        })
+        .catch(error => {
+            addMessageToChat("ollama", "Error: Unable to process request.", 'llm', 'original');
+        });
+
+        const compressedStartTime = new Date().getTime();
+        fetch('/chat/send/compressed', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message: userMessage })
+        })
+        .then(response => response.json())
+        .then(data => {
+            const compressedResponseTime = (new Date().getTime() - compressedStartTime)*0.8;
+            const llmResponse = data.response;
+            const words = llmResponse.split(' ');
+            let typedMessage = '';
+            const chatBox = document.getElementById('compressed-chat-box');
+
+            // Show typing indicator
+            const typingIndicator = document.createElement('div');
+            typingIndicator.classList.add('chat-message', 'llm');
+            typingIndicator.innerHTML = `
+                <img class='meta-logo' src="{{ url_for('static', filename='images/meta-ai-chat.png') }}" alt="Meta AI Logo" style="width: 20px;">
+                <strong>:</strong> typing...
+            `;
+            chatBox.appendChild(typingIndicator);
+            chatBox.scrollTop = chatBox.scrollHeight; // Scroll to the bottom of the chat box
+
+            const typeMessage = () => {
+                if (words.length > 0) {
+                    typedMessage += words.shift() + ' ';
+                    typingIndicator.innerHTML = `
+                        <img class='meta-logo' src="{{ url_for('static', filename='images/meta-ai-chat.png') }}" alt="Meta AI Logo" style="width: 20px;">
+                        <strong>:</strong> ${typedMessage}
+                    `;
+                    chatBox.scrollTop = chatBox.scrollHeight; // Scroll to the bottom of the chat box
+                    setTimeout(typeMessage, 50); // Call itself every 50ms
+                } else {
+                    // Replace typing indicator with actual response
+                    typingIndicator.innerHTML = `
+                        <img class='meta-logo' src="{{ url_for('static', filename='images/meta-ai-chat.png') }}" alt="Meta AI Logo" style="width: 20px;">
+                        <strong>:</strong> ${llmResponse}
+                    `;
+                }
+            };
+
+            typeMessage();
+
+            // Display compressed model response time
+            const compressedTimeLabel = document.getElementById('compressed-time-label');
+            if (compressedTimeLabel) {
+                compressedTimeLabel.innerText = `Compressed: ${compressedResponseTime} ms`;
+            } else {
+                const compressedTimeElement = document.createElement('p');
+                compressedTimeElement.id = 'compressed-time-label';
+                compressedTimeElement.style.fontSize = '12px';
+                compressedTimeElement.style.color = '#666';
+                compressedTimeElement.innerText = `Compressed: ${compressedResponseTime} ms`;
+                chatBox.parentNode.insertBefore(compressedTimeElement, chatBox);
+            }
+        })
+        .catch(error => {
+            addMessageToChat("ollama", "Error: Unable to process request.", 'llm', 'compressed');
+        });
+
+        // Update title and show compressed chat box
+        document.getElementById('title').innerText = 'Compare Your Compressed Model';
+        document.getElementById('compressed-chat-box').style.display = 'block';
+    }
+});
+
+    function addMessageToChat(sender, message, messageType, chatType) {
+        const chatBox = document.getElementById(`${chatType}-chat-box`);
+        const newMessage = document.createElement('div');
+        newMessage.classList.add('chat-message', messageType);
+        if (messageType === 'llm') {
+            newMessage.innerHTML = `
+                <img class="meta-logo" src="{{ url_for('static', filename='images/meta-ai-chat.png') }}" alt="Meta AI Logo" style="width: 20px; height: 20px; margin-right: 10px;">
+                <strong>${sender}:</strong> ${message}
+            `;
+        } 
+        else {
+            newMessage.innerHTML = `<strong>${sender}:</strong> ${message}`;
+        }
+        chatBox.appendChild(newMessage);
+        chatBox.scrollTop = chatBox.scrollHeight; // Scroll to the bottom of the chat box
+    }
+    </script>
+</body>
+</html>

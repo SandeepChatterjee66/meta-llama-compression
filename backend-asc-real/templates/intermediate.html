@@ -1,0 +1,164 @@
+<!-- intermediate.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Layer Selection</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
+    <style>
+        body {
+            background-color: #f0f2f5; /* Facebook-like light grey background */
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .container {
+            margin-top: 50px;
+            text-align: center;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h5 {
+            color: #1877f2; /* Facebook blue for headings */
+        }
+
+        .layer-container {
+            margin: 2px auto;
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .layer {
+            margin: 5px;
+            padding: 10px 40px;  /* Increased padding for longer buttons */
+            border-radius: 5px;
+            color: #2f64b5; /* Dark blue color */
+            background-color: #2f64b5; /* Dark blue color */
+            color: white;
+            transition: background-color 0.3s;
+            transform: rotate(-90deg);
+            display: inline-block;
+            width: 80px;  /* Adjusted width for longer buttons */
+        }
+
+        .layer.deleted {
+            background-color: #add8e6; /* Light blue color */
+        }
+
+        .proceed-button {
+            background-color: #42a5f5;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .proceed-button:hover {
+            background-color: #2f64b5;
+        }
+
+        .back-button {
+            background-color: #e0e0e0;
+            color: #2f64b5;
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .back-button:hover {
+            background-color: #d5d5d5;
+        }
+
+        .compression-details {
+            margin-top: 20px;
+        }
+
+        .finetune-checkbox {
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .finetune-checkbox label {
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container center-align">
+        <!-- Meta logo at the top -->
+        <img src="{{ url_for('static', filename='images/meta_logo.png') }}" alt="Meta Logo" class="meta-logo">
+
+        <h5>Selected Layers</h5>
+
+        <!-- Layer container -->
+        <div class="layer-container">
+            {% for i in range(26) %}
+                {% if random_values[i] %}
+                    <div class="layer deleted">DEC{{ i + 1 }}</div>
+                {% else %}
+                    <div class="layer">DEC{{ i + 1 }}</div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <!-- Finetune checkbox -->
+        <div class="finetune-checkbox">
+            <label>
+                <input type="checkbox" id="finetune-checkbox" />
+                <span>Finetune the model</span>
+            </label>
+        </div>
+
+        <!-- Proceed and back buttons -->
+        <div class="center-align">
+            <button class="proceed-button" id="proceed-button">Proceed</button>
+            <button class="back-button" id="back-button">Back</button>
+        </div>
+
+        <!-- Compression details -->
+        <div class="compression-details" id="compression-details" style="display: none;">
+            <p>Old Model Size: 10.5B parameters</p>
+            <p>New Model Size: 9.2B parameters</p>
+            <p>Compression Ratio: 12.4%</p>
+            <p>Redundant Layers Deleted: 3</p>
+        </div>
+
+        <!-- Next button -->
+        <button class="proceed-button" id="next-button" style="display: none;">Next</button>
+    </div>
+
+    <script>
+        // Handle back button click
+        document.getElementById('back-button').addEventListener('click', function() {
+            window.location.href = '/heatmap';  // Navigate back to heatmap page
+        });
+
+        // Handle proceed button click
+        document.getElementById('proceed-button').addEventListener('click', function() {
+            document.getElementById('proceed-button').style.display = 'none';
+            document.getElementById('compression-details').style.display = 'block';
+            document.getElementById('finetune-checkbox').style.display = 'block';
+            document.getElementById('next-button').style.display = 'block';
+        });
+
+        // Handle next button click
+        document.getElementById('next-button').addEventListener('click', function() {
+            // Implement logic to store finetune preference
+            window.location.href = '/pricing';  // Navigate to compression page
+        });
+    </script>
+</body>
+</html>
