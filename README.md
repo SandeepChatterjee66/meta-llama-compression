@@ -9,7 +9,5 @@ USP: Your task, Your choice, Your Llama
 
 ▪ You control the model compression process
 
-
-
-![poster](https://github.com/user-attachments/assets/a661eb43-c171-4af0-8718-4145f098d579)
+![Llama-Squeeze](https://github.com/user-attachments/assets/7e563915-86f7-463e-9187-d2a8ba84e676)
 
