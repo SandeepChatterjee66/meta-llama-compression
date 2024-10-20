@@ -8,7 +8,8 @@ USP: Your task, Your choice, Your Llama
 ▪ Get rid of the T-shirt size problem in choosing model size
 
 ▪ You control the model compression process
-![Uploading poster.png…]()
 
 
+
+![poster](https://github.com/user-attachments/assets/a661eb43-c171-4af0-8718-4145f098d579)
 
